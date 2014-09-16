@@ -4,7 +4,7 @@
   "description": "A Bulkhead service that allows SailsJS projects to populate ORMs with REST requests and vice versa.",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=test node_modules/.bin/mocha test --recursive"
+    "test": "NODE_ENV=test node_modules/bulkhead-test/node_modules/.bin/mocha test --recursive"
   },
   "repository": {
     "type": "git",
@@ -28,9 +28,10 @@
   },
   "homepage": "https://github.com/CodeOtter/bulkhead-chart",
   "dependencies": {
-    "bulkhead": "^0.0.2"
+    "bulkhead": "0.0.7",
+    "mkdirp": "^0.5.0"
   },
   "devDependencies": {
-    "mocha": "^1.21.3"
+    "bulkhead-test": "0.0.6"
   }
 }
