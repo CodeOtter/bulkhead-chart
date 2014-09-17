@@ -1,21 +1,26 @@
 _ = require('lodash');
 
+/**
+ * 
+ * @param target
+ * @param source
+ * @param fromProperty
+ * @param toProperty
+ * @returns
+ */
+function Chart(target, source, fromProperty, toProperty) {
+	this.map = [new Mapping(this, target, source, fromProperty, toProperty)];
+};
 
 /**
  * 
+ * @param source
+ * @returns
  */
-module.exports = function Chart() {
-
-	var map = [];
-
-	/**
-	 * 
-	 */
-	this.create = function(target, source, fromProperty, toProperty) {
-		var mapping = new Mapping(this, target, source, fromProperty, toProperty);
-		map.push(mapping);
-		return mapping;
-	};
+Chart.prototype.from = function(source) {
+	var result = this.map[this.map.length - 1];
+	result.from(source);
+	return result;
 };
 
 /**
@@ -97,12 +102,10 @@ Mapping.prototype.into = function(toProperty, defaultValue) {
  * @param copy
  */
 Mapping.prototype.when = function() {
-	var args = Array.prototype.slice.call(arguments, 0);
-	var result = [];
-	for(var i in args) {
-		result.concat(args[i]);
+	var result = _.flatten(arguments);
+	if(result.length > 0 && result[0] !== undefined) {
+		this.conditions = this.conditions.concat(result);
 	}
-	this.conditions.concat(result);
 	return this;
 };
 
@@ -111,8 +114,9 @@ Mapping.prototype.when = function() {
  * @param target
  * @returns
  */
-Mapping.prototype.and = function(target) {
-	return this.chart.create(target);
+Mapping.prototype.and = function(target) { 
+	this.chart.map.push(new Mapping(this.chart, target));
+	return this.chart;
 };
 
 /**
@@ -120,21 +124,23 @@ Mapping.prototype.and = function(target) {
  * @returns
  */
 Mapping.prototype.then = function() {
-	return this.chart.create(this.target, this.source);
+	var instruction = new Mapping(this.chart, this.target, this.source);
+	this.chart.map.push(instruction);
+	return instruction;
 };
 
 /**
  * 
  */
-Mapping.protocol.convert = function(errorHandler) {
-	
+Mapping.prototype.convert = function(errorHandler) {
+	return false;
 };
 
 /**
  * 
  */
-Mapping.protocol.invert = function(errorHandler) {
-	
+Mapping.prototype.invert = function(errorHandler) {
+	return false;
 };
 
 /**
@@ -146,3 +152,5 @@ var parse = function() {
 	var result = null;
 	return result;
 };
+
+module.exports = Chart;

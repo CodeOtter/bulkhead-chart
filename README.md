@@ -29,7 +29,7 @@ var model = {},
 		c: 3
 	};
 
-var result = Chart.create(model).from(rest)
+var result = new Chart(model).from(rest)
 	.copy('a')
 	.then().copy('b')
 .convert();
@@ -54,7 +54,7 @@ var model = {
 		c: 3
 	};
 
-var result = Chart.create(model).from(rest)
+var result = new Chart(model).from(rest)
 	.copy('a')
 	.then().copy('b')
 .convert();
@@ -76,7 +76,7 @@ var model = {},
 		c: undefined
 	};
 
-var result = Chart.create(model).from(rest)
+var result = new Chart(model).from(rest)
 	.copy('a')
 	.then().copy('c', 7)
 .convert();
@@ -102,7 +102,7 @@ var model = {
 		c: undefined
 	};
 
-var result = Chart.create(model).from(rest)
+var result = new Chart(model).from(rest)
 	.overwrite('a')
 	.overwrite('b')
 	.then().overwrite('c', 3)
@@ -125,8 +125,7 @@ var model = {},
 		c: 3
 	};
 
-var result = Chart
-.create(model).from(rest)
+var result = new Chart(model).from(rest)
 	.copy('a')
 	.then().copy('b').into('c')
 .convert();
@@ -148,8 +147,7 @@ var model = {},
 		c: 3
 	};
 
-var result = Chart
-.create(model).from(rest)
+var result = new Chart(model).from(rest)
 	.copy('a')
 	.then().copy('b', 8).into('c')
 .convert();
@@ -175,8 +173,7 @@ var model = {
 		c: 3
 	};
 
-var result = Chart
-.create(model).from(rest)
+var result = new Chart(model).from(rest)
 	.overwrite('a')
 	.then().overwrite('b').into('c')
 .convert();
@@ -202,8 +199,7 @@ var model = {
 		c: 3
 	};
 
-var result = Chart
-.create(model).from(rest)
+var result = new Chart(model).from(rest)
 	.copy('a')
 	.then().copy('b').into('c')
 .convert();
@@ -227,8 +223,7 @@ var model = {},
 		}
 	};
 
-var result = Chart
-.create(model).from(rest)
+var result = new Chart(model).from(rest)
 	.copy('a')
 	.and(model.d).from(rest.c)
 		.copy('d')
@@ -257,8 +252,7 @@ var model = {
 		}
 	};
 
-var result = Chart
-.create(model).from(rest)
+var result = new Chart(model).from(rest)
 	.copy('a')
 	.and(model.d).from(rest.c)
 		.copy('d')
@@ -288,8 +282,7 @@ var model = {
 		}
 	};
 
-var result = Chart
-.create(model).from(rest)
+var result = new Chart(model).from(rest)
 	.overwrite('a')
 	.and(model.d).from(rest.c)
 		.overwrite('d')
@@ -314,8 +307,7 @@ var model = {},
 		}
 	};
 
-var result = Chart
-.create(model).from(rest)
+var result = new Chart(model).from(rest)
 	.copy('a')
 	.then().copy('c')
 .convert();
@@ -344,8 +336,7 @@ var model = {
 		}
 	};
 
-var result = Chart
-.create(model).from(rest)
+var result = new Chart(model).from(rest)
 	.copy('a')
 	.then().copy('c')
 .convert();
@@ -374,8 +365,7 @@ var model = {
 		}
 	};
 
-var result = Chart
-.create(model).from(rest)
+var result = new Chart(model).from(rest)
 	.copy('a')
 	.then().copy('c')
 .convert();
@@ -403,8 +393,7 @@ var model = {},
 		}
 	};
 
-var result = Chart
-.create(model).from(rest)
+var result = new Chart(model).from(rest)
 	.copy('a')
 	.and(model.custom).from(rest.c)
 		.copy('*')
@@ -440,8 +429,7 @@ var model = {
 		}
 	};
 
-var result = Chart
-.create(model).from(rest)
+var result = new Chart(model).from(rest)
 	.copy('a')
 	.and(model.custom).from(rest.c)
 		.copy('*')

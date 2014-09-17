@@ -1,15 +1,58 @@
 var Suite = require('bulkhead-test'),
 	assert = require('assert'),
 	Chart = require('../api/services/Service');
-describe.only('QueueService', function() {
+describe.only('Bulkhead Chart plugin', function() {
 	Suite.lift();
 
 	describe('Chart Service', function() {
-		it('should property populate the instructions array', function(done) {
-			
+		
+		it('should properly populate the instructions array', function(done) {
+			var model = {
+					child: {}
+				},
+				rest = {
+					child: {}
+				};
+
+			var chart = new Chart(model).from(rest)
+				.copy('a', 5)
+				.then().copy('b').into('bb')
+				.then().overwrite('c', 4)
+				.then().overwrite('d').into('dd')
+				.then().copy('e').when(function(from, to) { return true; })
+				.and(model.child).from(rest.child)
+					.copy('a', 6)
+					.then().copy('b').into('bb')
+					.then().overwrite('c', 7)
+					.then().overwrite('d').into('dd')
+					.then().copy('e').when(function(from, to) { return true; })
+			.chart;
+
+			function testValue(instruction, target, source, fromProperty, toProperty, defaultValue, mode, conditionLength) {
+				assert.ok(instruction.target === target);
+				assert.ok(instruction.source === source);
+				assert.ok(instruction.fromProperty === fromProperty);
+				assert.ok(instruction.toProperty === toProperty);
+				assert.ok(instruction.defaultValue === defaultValue);
+				assert.ok(instruction.mode === mode);
+				assert.ok(instruction.conditions.length === conditionLength);
+			}
+
+			assert.ok(chart.map.length == 10);
+			testValue(chart.map[0], model, rest, 'a', 'a', 5, 0, 0);
+			testValue(chart.map[1], model, rest, 'b', 'bb', undefined, 0, 0);
+			testValue(chart.map[2], model, rest, 'c', 'c', 4, 1, 0);
+			testValue(chart.map[3], model, rest, 'd', 'dd', undefined, 1, 0);
+			testValue(chart.map[4], model, rest, 'e', 'e', undefined, 0, 1);
+			testValue(chart.map[5], model.child, rest.child, 'a', 'a', 6, 0, 0);
+			testValue(chart.map[6], model.child, rest.child, 'b', 'bb', undefined, 0, 0);
+			testValue(chart.map[7], model.child, rest.child, 'c', 'c', 7, 1, 0);
+			testValue(chart.map[8], model.child, rest.child, 'd', 'dd', undefined, 1, 0);
+			testValue(chart.map[9], model.child, rest.child, 'e', 'e', undefined, 0, 1);
+
 			done();
 		});
-		
+
 		it('should copy submitted data into a blank object', function(done) {
 
 			var model = {},
@@ -19,7 +62,7 @@ describe.only('QueueService', function() {
 					c: 3
 				};
 
-			var result = Chart.create(model).from(rest)
+			var result = new Chart(model).from(rest)
 				.copy('a')
 				.then().copy('b')
 			.convert();
@@ -43,7 +86,7 @@ describe.only('QueueService', function() {
 					c: 3
 				};
 
-			var result = Chart.create(model).from(rest)
+			var result = new Chart(model).from(rest)
 				.copy('a')
 				.then().copy('b')
 			.convert();
@@ -64,7 +107,7 @@ describe.only('QueueService', function() {
 					c: undefined
 				};
 
-			var result = Chart.create(model).from(rest)
+			var result = new Chart(model).from(rest)
 				.copy('a')
 				.then().copy('c', 7)
 			.convert();
@@ -88,7 +131,7 @@ describe.only('QueueService', function() {
 					c: undefined
 				};
 
-			var result = Chart.create(model).from(rest)
+			var result = new Chart(model).from(rest)
 				.overwrite('a')
 				.overwrite('b')
 				.then().overwrite('c', 3)
@@ -110,8 +153,7 @@ describe.only('QueueService', function() {
 					c: 3
 				};
 
-			var result = Chart
-			.create(model).from(rest)
+			var result = new Chart(model).from(rest)
 				.copy('a')
 				.then().copy('b').into('c')
 			.convert();
@@ -132,8 +174,7 @@ describe.only('QueueService', function() {
 					c: 3
 				};
 
-			var result = Chart
-			.create(model).from(rest)
+			var result = new Chart(model).from(rest)
 				.copy('a')
 				.then().copy('b', 8).into('c')
 			.convert();
@@ -158,8 +199,7 @@ describe.only('QueueService', function() {
 					c: 3
 				};
 
-			var result = Chart
-			.create(model).from(rest)
+			var result = new Chart(model).from(rest)
 				.overwrite('a')
 				.then().overwrite('b').into('c')
 			.convert();
@@ -185,8 +225,7 @@ describe.only('QueueService', function() {
 					c: 3
 				};
 
-			var result = Chart
-			.create(model).from(rest)
+			var result = new Chart(model).from(rest)
 				.copy('a')
 				.then().copy('b').into('c')
 			.convert();
@@ -209,8 +248,7 @@ describe.only('QueueService', function() {
 					}
 				};
 
-			var result = Chart
-			.create(model).from(rest)
+			var result = new Chart(model).from(rest)
 				.copy('a')
 				.and(model.d).from(rest.c)
 					.copy('d')
@@ -238,8 +276,7 @@ describe.only('QueueService', function() {
 					}
 				};
 
-			var result = Chart
-			.create(model).from(rest)
+			var result = new Chart(model).from(rest)
 				.copy('a')
 				.and(model.d).from(rest.c)
 					.copy('d')
@@ -268,8 +305,7 @@ describe.only('QueueService', function() {
 					}
 				};
 
-			var result = Chart
-			.create(model).from(rest)
+			var result = new Chart(model).from(rest)
 				.overwrite('a')
 				.and(model.d).from(rest.c)
 					.overwrite('d')
@@ -293,8 +329,7 @@ describe.only('QueueService', function() {
 					}
 				};
 
-			var result = Chart
-			.create(model).from(rest)
+			var result = new Chart(model).from(rest)
 				.copy('a')
 				.then().copy('c')
 			.convert();
@@ -322,8 +357,7 @@ describe.only('QueueService', function() {
 					}
 				};
 
-			var result = Chart
-			.create(model).from(rest)
+			var result = new Chart(model).from(rest)
 				.copy('a')
 				.then().copy('c')
 			.convert();
@@ -352,8 +386,7 @@ describe.only('QueueService', function() {
 					}
 				};
 
-			var result = Chart
-			.create(model).from(rest)
+			var result = new Chart(model).from(rest)
 				.copy('a')
 				.then().copy('c')
 			.convert();
@@ -381,8 +414,7 @@ describe.only('QueueService', function() {
 					}
 				};
 		
-			var result = Chart
-			.create(model).from(rest)
+			var result = new Chart(model).from(rest)
 				.copy('a')
 				.and(model.custom).from(rest.c)
 					.copy('*')
@@ -420,8 +452,7 @@ describe.only('QueueService', function() {
 					}
 				};
 		
-			var result = Chart
-			.create(model).from(rest)
+			var result = new Chart(model).from(rest)
 				.copy('a')
 				.and(model.custom).from(rest.c)
 					.copy('*')
