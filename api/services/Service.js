@@ -27,13 +27,25 @@ module.exports = function Chart() {
  * @param toProperty
  * @returns
  */
-function Mapping(chart, target, source, fromProperty, toProperty) {
+function Mapping(chart, target, source, fromProperty, toProperty, mode, defaultValue, conditions) {
 	this.chart = chart;
 	this.target = target;
 	this.source = source;
 	this.fromProperty = fromProperty;
 	this.toProperty = toProperty;
+	this.defaultValue = defaultValue;
+	this.mode = mode || 0;
+	this.conditions = [];
+	this.when(conditions);
 }
+
+/**
+ * 
+ */
+Mapping.modes = {
+	copy: 0,		// 
+	overwrite: 1	// 
+};
 
 /**
  * 
@@ -45,12 +57,26 @@ Mapping.prototype.from  = function(source) {
 };
 
 /**
- * 
+ * Copies a property of the source to the target, provided the target's property is undefined
  * @param copy
  */
-Mapping.prototype.copy = function(copy) {
+Mapping.prototype.copy = function(copy, defaultValue) {
 	this.fromProperty = copy;
 	this.toProperty = copy;
+	this.defaultValue = defaultValue;
+	this.mode = Mapping.modes.copy;
+	return this;
+};
+
+/**
+ * Copies a property of the source to the target, overwriting the value of the target's property
+ * @param copy
+ */
+Mapping.prototype.overwrite = function(copy, defaultValue) {
+	this.fromProperty = copy;
+	this.toProperty = copy;
+	this.defaultValue = defaultValue;
+	this.mode = Mapping.modes.overwrite;
 	return this;
 };
 
@@ -63,6 +89,20 @@ Mapping.prototype.into = function(toProperty, defaultValue) {
 	if(this.toProperty === undefined) {
 		this.toProperty = defaultValue;
 	}
+	return this;
+};
+
+/**
+ * 
+ * @param copy
+ */
+Mapping.prototype.when = function() {
+	var args = Array.prototype.slice.call(arguments, 0);
+	var result = [];
+	for(var i in args) {
+		result.concat(args[i]);
+	}
+	this.conditions.concat(result);
 	return this;
 };
 
@@ -86,32 +126,15 @@ Mapping.prototype.then = function() {
 /**
  * 
  */
-Mapping.prototype.asIs = function() {
-	var targetKeys = Object.keys(this.target),
-		sourceKeys = Object.keys(this.source),
-		target, source;
+Mapping.protocol.convert = function(errorHandler) {
 	
-	if(targetKeys.length == 0) {
-		// Dealing with a blank object, most likely converting ORM to REST
-		target = this.source;
-		source = this.target;
-	} else {
-		// Dealing with populated objects, most likely converting REST to ORM
-		target = this.target;
-		source = this.source;
-	}
+};
+
+/**
+ * 
+ */
+Mapping.protocol.invert = function(errorHandler) {
 	
-	// Iterate through each property of the target
-	_.each(target, function(element, index) {
-		// Confirm the source has the property
-		if(element instanceof Array) {
-			
-		} else if(element instanceof Object) {
-			
-		} else {
-			
-		}	
-	});
 };
 
 /**
@@ -119,18 +142,7 @@ Mapping.prototype.asIs = function() {
  * @param dotNotation
  * @returns
  */
-Mapping.parse = function(dotNotation, target) {
+var parse = function() {
 	var result = null;
 	return result;
 };
-/*
-var player = new Player()
-
-var result = require('bulkhead-chart')
-	.create(player).from(req.data)
-	.copy('username').into('email')
-	.then().copy('status')
-	.and(player.class).from(req.data.class)
-	.asIs()
-	.go();
-*/
