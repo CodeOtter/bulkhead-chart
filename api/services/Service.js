@@ -122,7 +122,7 @@ Mapping.prototype.when = function() {
  * @param target
  * @returns
  */
-Mapping.prototype.and = function(parent, property, defaultValue) {
+Mapping.prototype.also = function(parent, property, defaultValue) {
 	if(defaultValue === undefined) {
 		defaultValue = {};
 	}

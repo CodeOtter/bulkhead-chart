@@ -20,7 +20,7 @@ describe.only('Bulkhead Chart plugin', function() {
 				.then().overwrite('c', 4)
 				.then().overwrite('d').into('dd')
 				.then().copy('e').when(function(from, to) { return true; })
-				.and(model, 'child').from(rest.child)
+				.also(model, 'child').from(rest.child)
 					.copy('a', 6)
 					.then().copy('b').into('bb')
 					.then().overwrite('c', 7)
@@ -251,7 +251,7 @@ describe.only('Bulkhead Chart plugin', function() {
 
 			var result = new Chart(model).from(rest)
 				.copy('a')
-				.and(model, 'd').from(rest.c)
+				.also(model, 'd').from(rest.c)
 					.copy('d')
 			.convert();
 
@@ -279,7 +279,7 @@ describe.only('Bulkhead Chart plugin', function() {
 
 			var result = new Chart(model).from(rest)
 				.copy('a')
-				.and(model, 'd').from(rest.c)
+				.also(model, 'd').from(rest.c)
 					.copy('d')
 			.convert();
 			
@@ -308,7 +308,7 @@ describe.only('Bulkhead Chart plugin', function() {
 
 			var result = new Chart(model).from(rest)
 				.overwrite('a')
-				.and(model, 'd').from(rest.c)
+				.also(model, 'd').from(rest.c)
 					.overwrite('d')
 			.convert();
 			
@@ -417,7 +417,7 @@ describe.only('Bulkhead Chart plugin', function() {
 		
 			var result = new Chart(model).from(rest)
 				.copy('a')
-				.and(model, 'custom').from(rest.c)
+				.also(model, 'custom').from(rest.c)
 					.copy('*')
 			.convert();
 			
@@ -455,7 +455,7 @@ describe.only('Bulkhead Chart plugin', function() {
 		
 			var result = new Chart(model).from(rest)
 				.copy('a')
-				.and(model, 'c').from(rest.c)
+				.also(model, 'c').from(rest.c)
 					.copy('*')
 			.convert();
 

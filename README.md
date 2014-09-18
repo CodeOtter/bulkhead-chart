@@ -225,7 +225,7 @@ var model = {},
 
 var result = new Chart(model).from(rest)
 	.copy('a')
-	.and(model.d).from(rest.c)
+	.also(model.d).from(rest.c)
 		.copy('d')
 .convert();
 ```
@@ -254,7 +254,7 @@ var model = {
 
 var result = new Chart(model).from(rest)
 	.copy('a')
-	.and(model.d).from(rest.c)
+	.also(model.d).from(rest.c)
 		.copy('d')
 .convert();
 ```
@@ -284,7 +284,7 @@ var model = {
 
 var result = new Chart(model).from(rest)
 	.overwrite('a')
-	.and(model.d).from(rest.c)
+	.also(model.d).from(rest.c)
 		.overwrite('d')
 .convert();
 ```
@@ -395,7 +395,7 @@ var model = {},
 
 var result = new Chart(model).from(rest)
 	.copy('a')
-	.and(model.custom).from(rest.c)
+	.also(model.custom).from(rest.c)
 		.copy('*')
 .convert();
 ```
@@ -431,7 +431,7 @@ var model = {
 
 var result = new Chart(model).from(rest)
 	.copy('a')
-	.and(model.custom).from(rest.c)
+	.also(model.custom).from(rest.c)
 		.copy('*')
 .convert();
 ```
