@@ -15,17 +15,17 @@ describe.only('Bulkhead Chart plugin', function() {
 				};
 
 			var chart = new Chart(model).from(rest)
-				.copy('a', 5)
-				.then().copy('b').into('bb')
-				.then().overwrite('c', 4)
-				.then().overwrite('d').into('dd')
-				.then().copy('e').when(function(from, to) { return true; })
+				.merge('a', 5)
+				.then().merge('b').into('bb')
+				.then().write('c', 4)
+				.then().write('d').into('dd')
+				.then().merge('e').when(function(from, to) { return true; })
 				.also(model, 'child').from(rest.child)
-					.copy('a', 6)
-					.then().copy('b').into('bb')
-					.then().overwrite('c', 7)
-					.then().overwrite('d').into('dd')
-					.then().copy('e').when(function(from, to) { return true; })
+					.merge('a', 6)
+					.then().merge('b').into('bb')
+					.then().write('c', 7)
+					.then().write('d').into('dd')
+					.then().merge('e').when(function(from, to) { return true; })
 			.chart;
 
 			function testValue(instruction, target, source, fromProperty, toProperty, defaultValue, mode, conditionLength) {
@@ -53,7 +53,7 @@ describe.only('Bulkhead Chart plugin', function() {
 			done();
 		});
 
-		it('should copy submitted data into a blank object', function(done) {
+		it('should merge submitted data into a blank object', function(done) {
 
 			var model = {},
 				rest = {
@@ -63,8 +63,8 @@ describe.only('Bulkhead Chart plugin', function() {
 				};
 
 			var result = new Chart(model).from(rest)
-				.copy('a')
-				.then().copy('b')
+				.merge('a')
+				.then().merge('b')
 			.convert();
 
 			assert.ok(Object.keys(result).length == 2);
@@ -74,7 +74,7 @@ describe.only('Bulkhead Chart plugin', function() {
 			done();
 		});
 		
-		it('should copy submitted data into an established object', function(done) {
+		it('should merge submitted data into an established object', function(done) {
 
 			var model = {
 					b: undefined,
@@ -87,8 +87,8 @@ describe.only('Bulkhead Chart plugin', function() {
 				};
 
 			var result = new Chart(model).from(rest)
-				.copy('a')
-				.then().copy('b')
+				.merge('a')
+				.then().merge('b')
 			.convert();
 
 			assert.ok(Object.keys(result).length == 3);
@@ -98,7 +98,7 @@ describe.only('Bulkhead Chart plugin', function() {
 			done();
 		});
 		
-		it('should copy submitted data from default values', function(done) {
+		it('should merge submitted data from default values', function(done) {
 
 			var model = {},
 				rest = {
@@ -108,8 +108,8 @@ describe.only('Bulkhead Chart plugin', function() {
 				};
 
 			var result = new Chart(model).from(rest)
-				.copy('a')
-				.then().copy('c', 7)
+				.merge('a')
+				.then().merge('c', 7)
 			.convert();
 			
 			assert.ok(Object.keys(result).length == 2);
@@ -118,7 +118,7 @@ describe.only('Bulkhead Chart plugin', function() {
 			done();
 		});
 		
-		it('should overwrite established data from submitted data', function(done) {
+		it('should write established data from submitted data', function(done) {
 
 			var model = {
 					a: undefined,
@@ -132,9 +132,9 @@ describe.only('Bulkhead Chart plugin', function() {
 				};
 
 			var result = new Chart(model).from(rest)
-				.overwrite('a')
-				.then().overwrite('b')
-				.then().overwrite('c', 3)
+				.write('a')
+				.then().write('b')
+				.then().write('c', 3)
 			.convert();
 			
 			assert.ok(Object.keys(result).length == 3);
@@ -144,7 +144,7 @@ describe.only('Bulkhead Chart plugin', function() {
 			done();
 		});
 		
-		it('should copy based on custom remapping', function(done) {
+		it('should merge based on custom remapping', function(done) {
 
 			var model = {},
 				rest = {
@@ -154,8 +154,8 @@ describe.only('Bulkhead Chart plugin', function() {
 				};
 
 			var result = new Chart(model).from(rest)
-				.copy('a')
-				.then().copy('b').into('c')
+				.merge('a')
+				.then().merge('b').into('c')
 			.convert();
 			
 			assert.ok(Object.keys(result).length == 2);
@@ -165,7 +165,7 @@ describe.only('Bulkhead Chart plugin', function() {
 			done();
 		});
 		
-		it('should copy default values based on custom remapping', function(done) {
+		it('should merge default values based on custom remapping', function(done) {
 
 			var model = {},
 				rest = {
@@ -175,8 +175,8 @@ describe.only('Bulkhead Chart plugin', function() {
 				};
 
 			var result = new Chart(model).from(rest)
-				.copy('a')
-				.then().copy('b', 8).into('c')
+				.merge('a')
+				.then().merge('b', 8).into('c')
 			.convert();
 			
 			assert.ok(Object.keys(result).length == 2);
@@ -186,7 +186,7 @@ describe.only('Bulkhead Chart plugin', function() {
 			done();
 		});
 		
-		it('should overwrite based on custom remapping', function(done) {
+		it('should write based on custom remapping', function(done) {
 
 			var model = {
 					a: 6,
@@ -200,8 +200,8 @@ describe.only('Bulkhead Chart plugin', function() {
 				};
 
 			var result = new Chart(model).from(rest)
-				.overwrite('a')
-				.then().overwrite('b').into('c')
+				.write('a')
+				.then().write('b').into('c')
 			.convert();
 			
 			assert.ok(Object.keys(result).length == 3);
@@ -212,7 +212,7 @@ describe.only('Bulkhead Chart plugin', function() {
 			done();
 		});
 		
-		it('should copy based on custom remapping into an established object', function(done) {
+		it('should merge based on custom remapping into an established object', function(done) {
 
 			var model = {
 					a: undefined,
@@ -226,8 +226,8 @@ describe.only('Bulkhead Chart plugin', function() {
 				};
 
 			var result = new Chart(model).from(rest)
-				.copy('a')
-				.then().copy('b').into('c')
+				.merge('a')
+				.then().merge('b').into('c')
 			.convert();
 			
 			assert.ok(Object.keys(result).length == 3);
@@ -250,9 +250,9 @@ describe.only('Bulkhead Chart plugin', function() {
 				};
 
 			var result = new Chart(model).from(rest)
-				.copy('a')
+				.merge('a')
 				.also(model, 'd').from(rest.c)
-					.copy('d')
+					.merge('d')
 			.convert();
 
 			assert.ok(Object.keys(result).length == 2);
@@ -278,9 +278,9 @@ describe.only('Bulkhead Chart plugin', function() {
 				};
 
 			var result = new Chart(model).from(rest)
-				.copy('a')
+				.merge('a')
 				.also(model, 'd').from(rest.c)
-					.copy('d')
+					.merge('d')
 			.convert();
 			
 			assert.ok(Object.keys(result).length == 2);
@@ -307,9 +307,9 @@ describe.only('Bulkhead Chart plugin', function() {
 				};
 
 			var result = new Chart(model).from(rest)
-				.overwrite('a')
+				.write('a')
 				.also(model, 'd').from(rest.c)
-					.overwrite('d')
+					.write('d')
 			.convert();
 			
 			assert.ok(Object.keys(result).length == 2);
@@ -319,7 +319,7 @@ describe.only('Bulkhead Chart plugin', function() {
 			done();
 		});
 		
-		it('should copy child', function(done) {
+		it('should merge child', function(done) {
 
 			var model = {},
 				rest = {
@@ -331,8 +331,8 @@ describe.only('Bulkhead Chart plugin', function() {
 				};
 
 			var result = new Chart(model).from(rest)
-				.copy('a')
-				.then().copy('c')
+				.merge('a')
+				.then().merge('c')
 			.convert();
 			
 			assert.ok(Object.keys(result).length == 2);
@@ -359,8 +359,8 @@ describe.only('Bulkhead Chart plugin', function() {
 				};
 
 			var result = new Chart(model).from(rest)
-				.copy('a')
-				.then().copy('c')
+				.merge('a')
+				.then().merge('c')
 			.convert();
 			
 			assert.ok(Object.keys(result).length == 2);
@@ -371,7 +371,7 @@ describe.only('Bulkhead Chart plugin', function() {
 			done();
 		});
 		
-		it('should overwrite a child', function(done) {
+		it('should write a child', function(done) {
 
 			var model = {
 					c: {
@@ -388,8 +388,8 @@ describe.only('Bulkhead Chart plugin', function() {
 				};
 
 			var result = new Chart(model).from(rest)
-				.copy('a')
-				.then().overwrite('c')
+				.merge('a')
+				.then().write('c')
 			.convert();
 			
 			assert.ok(Object.keys(result).length == 2);
@@ -400,7 +400,7 @@ describe.only('Bulkhead Chart plugin', function() {
 			done();
 		});
 		
-		it('should custom copy child from other source', function(done) {
+		it('should custom merge child from other source', function(done) {
 
 			var model = {},
 				rest = {
@@ -416,9 +416,9 @@ describe.only('Bulkhead Chart plugin', function() {
 				};
 		
 			var result = new Chart(model).from(rest)
-				.copy('a')
+				.merge('a')
 				.also(model, 'custom').from(rest.c)
-					.copy('*')
+					.merge('*')
 			.convert();
 			
 			assert.ok(Object.keys(result).length == 2);
@@ -454,9 +454,9 @@ describe.only('Bulkhead Chart plugin', function() {
 				};
 		
 			var result = new Chart(model).from(rest)
-				.copy('a')
+				.merge('a')
 				.also(model, 'c').from(rest.c)
-					.copy('*')
+					.merge('*')
 			.convert();
 
 			assert.ok(Object.keys(result).length == 2);
@@ -467,6 +467,361 @@ describe.only('Bulkhead Chart plugin', function() {
 			assert.ok(Object.keys(result.c.f).length == 2);
 			assert.ok(result.c.f.g == 8);
 			assert.ok(result.c.f.i == 9);
+			done();
+		});
+		
+		it('should merge an nonexistant array', function(done) {
+
+			var model = {},
+				rest = {
+					a: [2, 3, 4]
+				};
+		
+			var result = new Chart(model).from(rest)
+				.merge('a')
+			.convert();
+
+			assert.ok(Object.keys(result).length == 1);
+			assert.ok(result.a.length == 3);
+			assert.ok(result.a[0] == 2);
+			assert.ok(result.a[1] == 3);
+			assert.ok(result.a[2] == 4);
+			done();
+		});
+		
+		it('should write an array', function(done) {
+
+			var model = {
+					a: 7
+				},
+				rest = {
+					a: [2, 3, 4]
+				};
+		
+			var result = new Chart(model).from(rest)
+				.write('a')
+			.convert();
+
+			assert.ok(Object.keys(result).length == 1);
+			assert.ok(result.a.length == 3);
+			assert.ok(result.a[0] == 2);
+			assert.ok(result.a[1] == 3);
+			assert.ok(result.a[2] == 4);
+			done();
+		});
+		
+		it('should merge into blank array', function(done) {
+
+			var model = {
+					a: []
+				},
+				rest = {
+					a: [2, 3, 4]
+				};
+		
+			var result = new Chart(model).from(rest)
+				.merge('a')
+			.convert();
+
+			assert.ok(Object.keys(result).length == 1);
+			assert.ok(result.a.length == 3);
+			assert.ok(result.a[0] == 2);
+			assert.ok(result.a[1] == 3);
+			assert.ok(result.a[2] == 4);
+			done();
+		});
+		
+		it('should merge primitives with established array', function(done) {
+
+			var model = {
+					a: [6, 7, 8]
+				},
+				rest = {
+					a: [2, 3, 4]
+				};
+		
+			var result = new Chart(model).from(rest)
+				.merge('a')
+			.convert();
+
+			assert.ok(Object.keys(result).length == 1);
+			assert.ok(result.a.length == 6);
+			assert.ok(result.a[0] == 6);
+			assert.ok(result.a[1] == 7);
+			assert.ok(result.a[2] == 8);
+			assert.ok(result.a[3] == 2);
+			assert.ok(result.a[4] == 3);
+			assert.ok(result.a[5] == 4);
+			done();
+		});
+		
+		it('should merge primitive subarrays', function(done) {
+
+			var model = {
+					a: [
+					    [6, 7, 8]
+					]
+				},
+				rest = {
+					a: [
+					    [2, 3, 4],
+					    [10, 11, 12]
+					]
+				};
+		
+			var result = new Chart(model).from(rest)
+				.merge('a')
+			.convert();
+
+			assert.ok(Object.keys(result).length == 1);
+			assert.ok(result.a.length == 2);
+			assert.ok(result.a[0][0] == 6);
+			assert.ok(result.a[0][1] == 7);
+			assert.ok(result.a[0][2] == 8);
+			assert.ok(result.a[0][3] == 2);
+			assert.ok(result.a[0][4] == 3);
+			assert.ok(result.a[0][5] == 4);
+			assert.ok(result.a[1][0] == 10);
+			assert.ok(result.a[1][1] == 11);
+			assert.ok(result.a[1][2] == 12);
+			done();
+		});
+		
+		it('should write primitive subarrays', function(done) {
+
+			var model = {
+					a: [
+					    [6, 7, 8]
+					]
+				},
+				rest = {
+					a: [
+					    [2, 3, 4],
+					    [10, 11, 12]
+					]
+				};
+
+			var result = new Chart(model).from(rest)
+				.write('a')
+			.convert();
+
+			assert.ok(Object.keys(result).length == 1);
+			assert.ok(result.a.length == 2);
+			assert.ok(result.a[0][0] == 2);
+			assert.ok(result.a[0][1] == 3);
+			assert.ok(result.a[0][2] == 4);
+			assert.ok(result.a[1][0] == 10);
+			assert.ok(result.a[1][1] == 11);
+			assert.ok(result.a[1][2] == 12);
+			done();
+		});
+
+		it('should merge object arrays into undefined', function(done) {
+
+			var model = {},
+				rest = {
+					a: [
+					    {
+					    	first: 'bob',
+					    	last: 'test'
+					    }
+					]
+				};
+
+			var result = new Chart(model).from(rest)
+				.merge('a')
+			.convert();
+
+			assert.ok(Object.keys(result).length == 1);
+			assert.ok(result.a.length == 1);
+			assert.ok(result.a[0].first == 'bob');
+			assert.ok(result.a[0].last == 'test');
+			done();
+		});
+		
+		it('should write object arrays into undefined', function(done) {
+
+			var model = {},
+				rest = {
+					a: [
+					    {
+					    	first: 'bob',
+					    	last: 'test'
+					    }
+					]
+				};
+
+			var result = new Chart(model).from(rest)
+				.write('a')
+			.convert();
+
+			assert.ok(Object.keys(result).length == 1);
+			assert.ok(result.a.length == 1);
+			assert.ok(result.a[0].first == 'bob');
+			assert.ok(result.a[0].last == 'test');
+			done();
+		});
+		
+		it('should merge object arrays into established object array', function(done) {
+
+			var model = {
+					a: [
+					    {
+					    	first: 'ted',
+					    	last: 'coder'
+					    }
+					]
+				},
+				rest = {
+					a: [
+					    {
+					    	first: 'bob',
+					    	last: 'tester'
+					    }
+					]
+				};
+
+			var result = new Chart(model).from(rest)
+				.merge('a')
+			.convert();
+
+			assert.ok(Object.keys(result).length == 1);
+			assert.ok(result.a.length == 2);
+			assert.ok(result.a[0].first == 'ted');
+			assert.ok(result.a[0].last == 'coder');
+			assert.ok(result.a[1].first == 'bob');
+			assert.ok(result.a[1].last == 'tester');
+			
+			done();
+		});
+		
+		it('should write object arrays into established object array', function(done) {
+
+			var model = {
+					a: [
+					    {
+					    	first: 'ted',
+					    	last: 'coder'
+					    }
+					]
+				},
+				rest = {
+					a: [
+					    {
+					    	first: 'bob',
+					    	last: 'tester'
+					    }
+					]
+				};
+
+			var result = new Chart(model).from(rest)
+				.write('a')
+			.convert();
+
+			assert.ok(Object.keys(result).length == 1);
+			assert.ok(result.a.length == 1);
+			assert.ok(result.a[0].first == 'bob');
+			assert.ok(result.a[0].last == 'tester');
+			
+			done();
+		});
+		
+		it('should merge model arrays into established model array', function(done) {
+
+			var model = {
+					a: [
+					    {
+					    	id: 1,
+					    	first: 'ted',
+					    	last: 'coder'
+					    }
+					]
+				},
+				rest = {
+					a: [
+					    {
+					    	id: 1,
+					    	first: 'bob',
+					    	last: 'tester',
+					    	status: '5'
+					    }
+					]
+				};
+
+			var result = new Chart(model).from(rest)
+				.merge('a')
+			.convert();
+
+			assert.ok(Object.keys(result).length == 1);
+			assert.ok(result.a.length == 1);
+			assert.ok(result.a[0].first == 'ted');
+			assert.ok(result.a[0].last == 'coder');
+			assert.ok(result.a[0].id == 1);
+			assert.ok(result.a[0].status == '5');
+			
+			done();
+		});
+		
+		it('should write model arrays into established model array', function(done) {
+
+			var model = {
+					a: [
+					    {
+					    	id: 1,
+					    	first: 'ted',
+					    	last: 'coder'
+					    },
+					    {
+					    	id: 2,
+					    	first: 'ed',
+					    	last: 'artist'
+					    }
+					]
+				},
+				rest = {
+					a: [
+					    {
+					    	id: 1,
+					    	first: 'bob',
+					    	last: 'tester',
+					    	status: '5'
+					    }
+					]
+				};
+
+			var result = new Chart(model).from(rest)
+				.write('a')
+			.convert();
+
+			assert.ok(Object.keys(result).length == 1);
+			assert.ok(result.a.length == 2);
+			assert.ok(result.a[1].first == 'ed');
+			assert.ok(result.a[1].last == 'artist');
+			assert.ok(result.a[1].id == 2);
+			assert.ok(result.a[1].status == undefined);
+			assert.ok(result.a[0].first == 'bob');
+			assert.ok(result.a[0].last == 'tester');
+			assert.ok(result.a[0].id == 1);
+			assert.ok(result.a[0].status == '5');
+			
+			done();
+		});
+		
+		it('should handle complex case when blank', function(done) {
+
+			var model = {},
+				rest = {
+					
+				
+				};
+
+			var result = new Chart(model).from(rest)
+				.write('heroName').into('name')
+				.then().set('level', 1)
+				.then().set('status', 0)
+				.then().set('type', 0)
+			.convert();
+
 			done();
 		});
 	});

@@ -30,8 +30,8 @@ var model = {},
 	};
 
 var result = new Chart(model).from(rest)
-	.copy('a')
-	.then().copy('b')
+	.merge('a')
+	.then().merge('b')
 .convert();
 ```
 
@@ -55,8 +55,8 @@ var model = {
 	};
 
 var result = new Chart(model).from(rest)
-	.copy('a')
-	.then().copy('b')
+	.merge('a')
+	.then().merge('b')
 .convert();
 ```
 
@@ -77,8 +77,8 @@ var model = {},
 	};
 
 var result = new Chart(model).from(rest)
-	.copy('a')
-	.then().copy('c', 7)
+	.merge('a')
+	.then().merge('c', 7)
 .convert();
 ```
 
@@ -103,9 +103,9 @@ var model = {
 	};
 
 var result = new Chart(model).from(rest)
-	.overwrite('a')
-	.then().overwrite('b')
-	.then().overwrite('c', 3)
+	.write('a')
+	.then().write('b')
+	.then().write('c', 3)
 .convert();
 ```
 
@@ -126,8 +126,8 @@ var model = {},
 	};
 
 var result = new Chart(model).from(rest)
-	.copy('a')
-	.then().copy('b').into('c')
+	.merge('a')
+	.then().merge('b').into('c')
 .convert();
 ```
 
@@ -148,8 +148,8 @@ var model = {},
 	};
 
 var result = new Chart(model).from(rest)
-	.copy('a')
-	.then().copy('b', 8).into('c')
+	.merge('a')
+	.then().merge('b', 8).into('c')
 .convert();
 ```
 
@@ -174,8 +174,8 @@ var model = {
 	};
 
 var result = new Chart(model).from(rest)
-	.overwrite('a')
-	.then().overwrite('b').into('c')
+	.write('a')
+	.then().write('b').into('c')
 .convert();
 ```
 
@@ -200,8 +200,8 @@ var model = {
 	};
 
 var result = new Chart(model).from(rest)
-	.copy('a')
-	.then().copy('b').into('c')
+	.merge('a')
+	.then().merge('b').into('c')
 .convert();
 ```
 
@@ -224,9 +224,9 @@ var model = {},
 	};
 
 var result = new Chart(model).from(rest)
-	.copy('a')
+	.merge('a')
 	.also(model.d).from(rest.c)
-		.copy('d')
+		.merge('d')
 .convert();
 ```
 
@@ -253,9 +253,9 @@ var model = {
 	};
 
 var result = new Chart(model).from(rest)
-	.copy('a')
+	.merge('a')
 	.also(model.d).from(rest.c)
-		.copy('d')
+		.merge('d')
 .convert();
 ```
 
@@ -283,9 +283,9 @@ var model = {
 	};
 
 var result = new Chart(model).from(rest)
-	.overwrite('a')
+	.write('a')
 	.also(model.d).from(rest.c)
-		.overwrite('d')
+		.write('d')
 .convert();
 ```
 
@@ -308,8 +308,8 @@ var model = {},
 	};
 
 var result = new Chart(model).from(rest)
-	.copy('a')
-	.then().copy('c')
+	.merge('a')
+	.then().merge('c')
 .convert();
 ```
 
@@ -337,8 +337,8 @@ var model = {
 	};
 
 var result = new Chart(model).from(rest)
-	.copy('a')
-	.then().copy('c')
+	.merge('a')
+	.then().merge('c')
 .convert();
 ```
 
@@ -366,8 +366,8 @@ var model = {
 	};
 
 var result = new Chart(model).from(rest)
-	.copy('a')
-	.then().copy('c')
+	.merge('a')
+	.then().merge('c')
 .convert();
 ```
 
@@ -394,9 +394,9 @@ var model = {},
 	};
 
 var result = new Chart(model).from(rest)
-	.copy('a')
+	.merge('a')
 	.also(model.custom).from(rest.c)
-		.copy('*')
+		.merge('*')
 .convert();
 ```
 
@@ -430,8 +430,8 @@ var model = {
 	};
 
 var result = new Chart(model).from(rest)
-	.copy('a')
+	.merge('a')
 	.also(model.custom).from(rest.c)
-		.copy('*')
+		.merge('*')
 .convert();
 ```
