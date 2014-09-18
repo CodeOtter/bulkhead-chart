@@ -133,7 +133,7 @@ describe.only('Bulkhead Chart plugin', function() {
 
 			var result = new Chart(model).from(rest)
 				.overwrite('a')
-				.overwrite('b')
+				.then().overwrite('b')
 				.then().overwrite('c', 3)
 			.convert();
 			
@@ -230,8 +230,9 @@ describe.only('Bulkhead Chart plugin', function() {
 				.then().copy('b').into('c')
 			.convert();
 			
-			assert.ok(Object.keys(result).length == 2);
+			assert.ok(Object.keys(result).length == 3);
 			assert.ok(result.a == 1);
+			assert.ok(result.b == undefined);
 			assert.ok(result.c == 8);
 
 			done();

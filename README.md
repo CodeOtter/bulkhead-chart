@@ -104,7 +104,7 @@ var model = {
 
 var result = new Chart(model).from(rest)
 	.overwrite('a')
-	.overwrite('b')
+	.then().overwrite('b')
 	.then().overwrite('c', 3)
 .convert();
 ```

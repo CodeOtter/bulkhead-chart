@@ -39,7 +39,7 @@ function Mapping(chart, target, source, fromProperty, toProperty, mode, defaultV
 	this.fromProperty = fromProperty;
 	this.toProperty = toProperty;
 	this.defaultValue = defaultValue;
-	this.mode = mode || 0;
+	this.mode = mode || Mapping.modes.copy;
 	this.conditions = [];
 	this.when(conditions);
 }
@@ -50,6 +50,14 @@ function Mapping(chart, target, source, fromProperty, toProperty, mode, defaultV
 Mapping.modes = {
 	copy: 0,		// 
 	overwrite: 1	// 
+};
+
+/**
+ * 
+ * @param instruction
+ */
+Mapping.canWrite = function(instruction) {
+	return instruction.mode == Mapping.modes.overwrite || (instruction.mode == Mapping.modes.copy && instruction.target[instruction.toProperty] === undefined);
 };
 
 /**
@@ -133,14 +141,30 @@ Mapping.prototype.then = function() {
  * 
  */
 Mapping.prototype.convert = function(errorHandler) {
-	return false;
-};
+	var value;
+	for(var i in this.chart.map) {
+		var instruction = this.chart.map[i];
 
-/**
- * 
- */
-Mapping.prototype.invert = function(errorHandler) {
-	return false;
+		if(instruction.fromProperty === '*') {
+			// We're doing a recursive copy
+			populate(instruction.target, instruciton.source, instruciton.mode);
+		} else {
+			// Determine the value to use
+			if(instruction.source[instruction.fromProperty] === undefined) {
+				value = instruction.defaultValue;
+			} else {
+				value = instruction.source[instruction.fromProperty];
+			}
+
+			if(Mapping.canWrite(instruction)) {
+				// Put the value into the target
+				instruction.target[instruction.toProperty] = value;
+			}
+		}
+
+	}
+
+	return this.chart.map[0].target;
 };
 
 /**
@@ -148,9 +172,15 @@ Mapping.prototype.invert = function(errorHandler) {
  * @param dotNotation
  * @returns
  */
-var parse = function() {
-	var result = null;
-	return result;
+var populate = function(target, source, mode) {
+	_.merge(target, source, function(target, source) {
+		if(source instanceof Object) {
+			// Recruse into the object and merge that as well
+			populate(target, source, mode);
+		} else {
+			return mode == Mapping.modes.overwrite || (mode == Mapping.modes.copy && target === undefined) ? source : target;
+		}
+	});
 };
 
 module.exports = Chart;
