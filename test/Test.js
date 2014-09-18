@@ -20,7 +20,7 @@ describe.only('Bulkhead Chart plugin', function() {
 				.then().overwrite('c', 4)
 				.then().overwrite('d').into('dd')
 				.then().copy('e').when(function(from, to) { return true; })
-				.and(model.child).from(rest.child)
+				.and(model, 'child').from(rest.child)
 					.copy('a', 6)
 					.then().copy('b').into('bb')
 					.then().overwrite('c', 7)
@@ -251,14 +251,14 @@ describe.only('Bulkhead Chart plugin', function() {
 
 			var result = new Chart(model).from(rest)
 				.copy('a')
-				.and(model.d).from(rest.c)
+				.and(model, 'd').from(rest.c)
 					.copy('d')
 			.convert();
-			
+
 			assert.ok(Object.keys(result).length == 2);
 			assert.ok(result.a == 1);
 			assert.ok(Object.keys(result.d).length == 1);
-			assert.ok(result.d == 6);
+			assert.ok(result.d.d == 6);
 			done();
 		});
 		
@@ -279,14 +279,14 @@ describe.only('Bulkhead Chart plugin', function() {
 
 			var result = new Chart(model).from(rest)
 				.copy('a')
-				.and(model.d).from(rest.c)
+				.and(model, 'd').from(rest.c)
 					.copy('d')
 			.convert();
 			
 			assert.ok(Object.keys(result).length == 2);
 			assert.ok(result.a == 1);
 			assert.ok(Object.keys(result.d).length == 1);
-			assert.ok(result.d == 5);
+			assert.ok(result.d.d == 5);
 			done();
 		});
 		
@@ -308,14 +308,14 @@ describe.only('Bulkhead Chart plugin', function() {
 
 			var result = new Chart(model).from(rest)
 				.overwrite('a')
-				.and(model.d).from(rest.c)
+				.and(model, 'd').from(rest.c)
 					.overwrite('d')
 			.convert();
 			
 			assert.ok(Object.keys(result).length == 2);
 			assert.ok(result.a == 1);
 			assert.ok(Object.keys(result.d).length == 1);
-			assert.ok(result.d == 6);
+			assert.ok(result.d.d == 6);
 			done();
 		});
 		
@@ -389,7 +389,7 @@ describe.only('Bulkhead Chart plugin', function() {
 
 			var result = new Chart(model).from(rest)
 				.copy('a')
-				.then().copy('c')
+				.then().overwrite('c')
 			.convert();
 			
 			assert.ok(Object.keys(result).length == 2);
@@ -417,7 +417,7 @@ describe.only('Bulkhead Chart plugin', function() {
 		
 			var result = new Chart(model).from(rest)
 				.copy('a')
-				.and(model.custom).from(rest.c)
+				.and(model, 'custom').from(rest.c)
 					.copy('*')
 			.convert();
 			
@@ -455,18 +455,18 @@ describe.only('Bulkhead Chart plugin', function() {
 		
 			var result = new Chart(model).from(rest)
 				.copy('a')
-				.and(model.custom).from(rest.c)
+				.and(model, 'c').from(rest.c)
 					.copy('*')
 			.convert();
-			
+
 			assert.ok(Object.keys(result).length == 2);
 			assert.ok(result.a == 1);
-			assert.ok(Object.keys(result.custom).length == 3);
-			assert.ok(result.custom.d == 5);
-			assert.ok(result.custom.e == 7);
-			assert.ok(Object.keys(result.custom.f).length == 2);
-			assert.ok(result.custom.f.g == 8);
-			assert.ok(result.custom.f.i == 9);
+			assert.ok(Object.keys(result.c).length == 3);
+			assert.ok(result.c.d == 5);
+			assert.ok(result.c.e == 7);
+			assert.ok(Object.keys(result.c.f).length == 2);
+			assert.ok(result.c.f.g == 8);
+			assert.ok(result.c.f.i == 9);
 			done();
 		});
 	});

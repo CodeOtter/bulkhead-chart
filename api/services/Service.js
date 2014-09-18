@@ -122,8 +122,16 @@ Mapping.prototype.when = function() {
  * @param target
  * @returns
  */
-Mapping.prototype.and = function(target) { 
-	this.chart.map.push(new Mapping(this.chart, target));
+Mapping.prototype.and = function(parent, property, defaultValue) {
+	if(defaultValue === undefined) {
+		defaultValue = {};
+	}
+
+	if(parent[property] === undefined) {
+		parent[property] = defaultValue;
+	}
+
+	this.chart.map.push(new Mapping(this.chart, parent[property]));
 	return this.chart;
 };
 
@@ -147,13 +155,24 @@ Mapping.prototype.convert = function(errorHandler) {
 
 		if(instruction.fromProperty === '*') {
 			// We're doing a recursive copy
-			populate(instruction.target, instruciton.source, instruciton.mode);
+			populate(instruction.target, instruction.source, instruction.mode);
 		} else {
 			// Determine the value to use
 			if(instruction.source[instruction.fromProperty] === undefined) {
 				value = instruction.defaultValue;
 			} else {
-				value = instruction.source[instruction.fromProperty];
+				if(instruction.source[instruction.fromProperty] instanceof Object) {
+					// Copying from an object property
+					if(instruction.target[instruction.toProperty] === undefined) {
+						instruction.target[instruction.toProperty] = {};
+					}
+					populate(instruction.target[instruction.toProperty], instruction.source[instruction.fromProperty], instruction.mode);
+					continue;
+				} else {
+					// Copying from a primitive
+					value = instruction.source[instruction.fromProperty];
+				}
+				
 			}
 
 			if(Mapping.canWrite(instruction)) {
