@@ -32,16 +32,18 @@ Chart.prototype.from = function(source) {
  * @param toProperty
  * @returns
  */
-function Mapping(chart, target, source, fromProperty, toProperty, mode, defaultValue, conditions) {
+function Mapping(chart, target, source, fromProperty, toProperty, mode, defaultValue, conditions, transformer, factory) {
 	this.chart = chart;
 	this.target = target;
 	this.source = source;
 	this.fromProperty = fromProperty;
 	this.toProperty = toProperty;
-	this.defaultValue = defaultValue;
 	this.mode = mode || Mapping.modes.merge;
+	this.defaultValue = defaultValue;
 	this.conditions = [];
 	this.when(conditions);
+	this.transformer = undefined;
+	this.factory = undefined;
 }
 
 /**
@@ -58,7 +60,7 @@ Mapping.modes = {
  * @param instruction
  */
 Mapping.canWrite = function(instruction) {
-	return instruction.mode == Mapping.modes.write || (instruction.mode == Mapping.modes.merge && instruction.target[instruction.toProperty] === undefined);
+	return instruction.mode == Mapping.modes.set || instruction.mode == Mapping.modes.write || (instruction.mode == Mapping.modes.merge && instruction.target[instruction.toProperty] === undefined);
 };
 
 /**
@@ -120,6 +122,26 @@ Mapping.prototype.into = function(toProperty, defaultValue) {
 
 /**
  * 
+ * @param via
+ */
+Mapping.prototype.via = function(transformer) {
+	this.transformer = transformer;
+	return this;
+};
+
+/**
+ * 
+ * @param factory
+ * @returns {Mapping}
+ */
+Mapping.prototype.as = function(factory) {
+	this.factory = factory;
+	return this;
+};
+
+
+/**
+ * 
  * @param merge
  */
 Mapping.prototype.when = function() {
@@ -153,7 +175,7 @@ Mapping.prototype.also = function(parent, property, defaultValue) {
  * @returns
  */
 Mapping.prototype.then = function() {
-	var instruction = new Mapping(this.chart, this.target, this.source);
+	var instruction = new Mapping(this.chart, this.target, this.source, undefined, undefined, undefined, undefined, undefined, undefined, this.factory);
 	this.chart.map.push(instruction);
 	return instruction;
 };
@@ -182,14 +204,28 @@ Mapping.prototype.convert = function(errorHandler) {
 					(!(instruction.target[instruction.toProperty] instanceof Array) && instruction.mode == Mapping.modes.write)) {
 						instruction.target[instruction.toProperty] = [];
 					}
-					populate(instruction.target[instruction.toProperty], from, instruction.mode, instruction.defaultValue);
+					populate(instruction.target[instruction.toProperty], from, instruction.mode, instruction.defaultValue, instruction.factory);
+					if(instruction.transformer) {
+						// Transformation found, use it
+						instruction.target[instruction.toProperty] = instruction.transformer(from, instruction.target[instruction.toProperty]);
+					}
 					continue;
 				} else if(from instanceof Object) {
 					// Copying from an object property
 					if(instruction.target[instruction.toProperty] === undefined) {
-						instruction.target[instruction.toProperty] = {};
+						if(instruction.factory) {
+							// Create new factory instance
+							instruction.target[instruction.toProperty] = new this.factory();
+						} else {
+							// Create basic object
+							instruction.target[instruction.toProperty] = {};
+						}
 					}
 					populate(instruction.target[instruction.toProperty], from, instruction.mode, instruction.defaultValue);
+					if(instruction.transformer) {
+						// Transformation found, use it
+						instruction.target[instruction.toProperty] = instruction.transformer(from, instruction.target[instruction.toProperty]);
+					}
 					continue;
 				} else {
 					// Copying from a primitive
@@ -199,6 +235,9 @@ Mapping.prototype.convert = function(errorHandler) {
 
 			if(Mapping.canWrite(instruction)) {
 				// Put the value into the target
+				if(instruction.transformer) {
+					value = instruction.transformer(value, instruction.target[instruction.toProperty]);
+				}
 				instruction.target[instruction.toProperty] = value;
 			}
 		}
@@ -213,7 +252,7 @@ Mapping.prototype.convert = function(errorHandler) {
  * @param dotNotation
  * @returns
  */
-var populate = function(target, source, mode, defaultValue) {
+var populate = function(target, source, mode, defaultValue, factory) {
 	
 	/**
 	 * 
@@ -222,10 +261,14 @@ var populate = function(target, source, mode, defaultValue) {
 	 * @returns
 	 */
 	function mergeIterator(target, source) {
-		if(source instanceof Object) {
+		if(source instanceof Function) {
+			// Protects against malicious overwriting
+			return source;
+		} else if(source instanceof Object) {
 			// Recurse into the object and merge that as well
 			populate(target, source, mode);
 		} else {
+			// Dealing with a primitive
 			if(mode == Mapping.modes.set) {
 				return defaultValue;
 			} else if(mode == Mapping.modes.write || (mode == Mapping.modes.merge && target === undefined)) {
@@ -235,9 +278,11 @@ var populate = function(target, source, mode, defaultValue) {
 			}
 		}
 	}
-	
+
 	if(source instanceof Array) {
 		// Merging arrays
+		var writeArray = [];
+
 		for(var i in source) {
 			if(source[i] instanceof Array) {
 				// Dealing with an array, prepare for recursion
@@ -256,27 +301,42 @@ var populate = function(target, source, mode, defaultValue) {
 				}
 			} else if(source[i] instanceof Object) {
 				// Dealing with an object
-
 				var found = false;
+
 				if(source[i].id !== undefined) {
 					// Dealing with a unique ID, map accordingly
 					for(var j in target) {
 						if(target[j].id == source[i].id) {
+							if(factory) {
+								// Merge the target into the factory
+								target[j] = _.merge(factory, target[j], mergeIterator);
+							}
 							_.merge(target[j], source[i], mergeIterator);
+							if(mode == Mapping.modes.write) {
+								writeArray.push(target[j]);
+							}
 							found = true;
-						}
+							break;
+						}					
 					}
 				}
-				
+			
 				if(!found) {
 					// Source not found, create it
-					var entity = {};
+					var entity;
+
+					if(factory) {
+						entity = new factory();
+					} else {
+						entity = {};
+					}
+
 					_.merge(entity, source[i], mergeIterator);
 
 					if(mode == Mapping.modes.merge) {
 						target.push(entity);
 					} else if(mode == Mapping.modes.write) {
-						target[i] = entity;
+						writeArray.push(entity);
 					}
 				}
 			} else {
@@ -284,11 +344,23 @@ var populate = function(target, source, mode, defaultValue) {
 				if(mode == Mapping.modes.merge) {
 					target.push(source[i]);
 				} else if(mode == Mapping.modes.write) {
-					target[i] = source[i];
+					writeArray.push(source[i]);
 				}
 			}
 		}
+
+		if(writeArray.length > 0) {
+			// Write requests were found, recreate the target array
+			target.length = 0;
+			for(var i in writeArray) {
+				target.push(writeArray[i]);
+			}
+		}
 	} else {
+		if(factory) {
+			// Merge the target into the factory
+			target = _.merge(new factory(), target, mergeIterator);
+		}
 		_.merge(target, source, mergeIterator);
 	}
 };

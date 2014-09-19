@@ -794,34 +794,100 @@ describe.only('Bulkhead Chart plugin', function() {
 			.convert();
 
 			assert.ok(Object.keys(result).length == 1);
-			assert.ok(result.a.length == 2);
-			assert.ok(result.a[1].first == 'ed');
-			assert.ok(result.a[1].last == 'artist');
-			assert.ok(result.a[1].id == 2);
-			assert.ok(result.a[1].status == undefined);
+			assert.ok(result.a.length == 1);
 			assert.ok(result.a[0].first == 'bob');
 			assert.ok(result.a[0].last == 'tester');
 			assert.ok(result.a[0].id == 1);
 			assert.ok(result.a[0].status == '5');
-			
 			done();
 		});
 		
-		it('should handle complex case when blank', function(done) {
+		it('should handle a common POST activity', function(done) {
 
-			var model = {},
-				rest = {
-					
+			// Model instance with populated values
+			var model = {
+					age: 20,
+					skills: [
+					     {
+					    	 id: 2,
+					    	 level: 1
+					     },
+					     {
+					    	 id: 4,
+					    	 level: 2
+					     }
+					 ],
+					 items: [
+					     {
+					    	 id: 1,
+					    	 modifier: 1
+					     },
+					     {
+					    	 id: 2,
+					    	 modifier: 4
+					     },
+					 ]
+				},
 				
+				// POST request
+				rest = {
+					name: 'some hero',
+					age: 24,
+					hero_type: 'trial',
+					hero_race: 'orc',
+					skills: [
+					    {
+					    	id: 1,
+					    	level: 1
+					    },
+					    {
+					    	id: 2,
+					    	level: 4
+					    },
+					    {
+					    	id: 3,
+					    	level: 2
+					    },
+					]				
 				};
 
 			var result = new Chart(model).from(rest)
-				.write('heroName').into('name')
+				.write('name')
 				.then().set('level', 1)
-				.then().set('status', 0)
-				.then().set('type', 0)
+				.then().merge('age')
+				.then().write('hero_type').into('type')
+				.then().set('hero_status', 1).into('status')
+				.then().merge('hero_race').into('race').via(function(from, to) {
+					result = {
+						id: from == 'orc' ? 2 : 1,
+						region: 1
+					};
+					return result;
+				})
+				.then().write('skills')
 			.convert();
 
+			assert.ok(Object.keys(result).length == 8);
+			assert.ok(result.name == 'some hero');
+			assert.ok(result.age == 20);
+			assert.ok(result.level == 1);
+			assert.ok(result.type == 'trial');
+			assert.ok(result.status == 1);
+			assert.ok(Object.keys(result.race).length == 2);
+			assert.ok(result.race.id == 2);
+			assert.ok(result.race.region == 1);
+			assert.ok(result.items.length == 2);
+			assert.ok(result.items[0].id == 1);
+			assert.ok(result.items[0].modifier == 1);
+			assert.ok(result.items[1].id == 2);
+			assert.ok(result.items[1].modifier == 4);
+			assert.ok(result.skills.length == 3);
+			assert.ok(result.skills[0].id == 1);
+			assert.ok(result.skills[0].level == 1);
+			assert.ok(result.skills[1].id == 2);
+			assert.ok(result.skills[1].level == 4);
+			assert.ok(result.skills[2].id == 3);
+			assert.ok(result.skills[2].level == 2);
 			done();
 		});
 	});
