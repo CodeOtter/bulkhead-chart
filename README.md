@@ -15,423 +15,82 @@ require('bulkhead').plugins.initialize(sails, cb);
 
 ## Usage
 
-```javascript
-var Chart = require('bulkhead-chart');
+Bulkhead-chart utilizes a fluent pattern to handle the modality of conversion in more human-readable fashion:
+
 ```
-
-### 1
-
-```javascript
-var model = {},
-	rest = {
+var defaultValue = 0;
+var result = new Chart(result).from({
 		a: 1,
 		b: 2,
-		c: 3
-	};
-
-var result = new Chart(model).from(rest)
-	.merge('a')
-	.then().merge('b')
-.convert();
-```
-
-The output is:
-
-```javascript
-{}
-```
-
-### 2
-
-```javascript
-var model = {
-		b: undefined,
-		c: 7
-	},
-	rest = {
-		a: 1,
-		b: 2,
-		c: 3
-	};
-
-var result = new Chart(model).from(rest)
-	.merge('a')
-	.then().merge('b')
-.convert();
-```
-
-The output is:
-
-```javascript
-{}
-```
-
-### 3
-
-```javascript
-var model = {},
-	rest = {
-		a: 1,
-		b: 2,
-		c: undefined
-	};
-
-var result = new Chart(model).from(rest)
-	.merge('a')
-	.then().merge('c', 7)
-.convert();
-```
-
-The output is:
-
-```javascript
-{}
-```
-
-### 4
-
-```javascript
-var model = {
-		a: undefined,
-		b: 7,
-		c: 4
-	},
-	rest = {
-		a: 1,
-		b: 2,
-		c: undefined
-	};
-
-var result = new Chart(model).from(rest)
-	.write('a')
-	.then().write('b')
-	.then().write('c', 3)
-.convert();
-```
-
-The output is:
-
-```javascript
-{}
-```
-
-### 5
-
-```javascript
-var model = {},
-	rest = {
-		a: 1,
-		b: 2,
-		c: 3
-	};
-
-var result = new Chart(model).from(rest)
-	.merge('a')
-	.then().merge('b').into('c')
-.convert();
-```
-
-The output is:
-
-```javascript
-{}
-```
-
-### 6
-
-```javascript
-var model = {},
-	rest = {
-		a: 1,
-		b: undefined,
-		c: 3
-	};
-
-var result = new Chart(model).from(rest)
-	.merge('a')
-	.then().merge('b', 8).into('c')
-.convert();
-```
-
-The output is:
-
-```javascript
-{}
-```
-
-### 7
-
-```javascript
-var model = {
-		a: 6,
-		b: 5,
-		c: 4
-	},
-	rest = {
-		a: 1,
-		b: 2,
-		c: 3
-	};
-
-var result = new Chart(model).from(rest)
-	.write('a')
-	.then().write('b').into('c')
-.convert();
-```
-
-The output is:
-
-```javascript
-{}
-```
-
-### 8
-
-```javascript
-var model = {
-		a: undefined,
-		b: undefined,
-		c: 8
-	},
-	rest = {
-		a: 1,
-		b: 2,
-		c: 3
-	};
-
-var result = new Chart(model).from(rest)
-	.merge('a')
-	.then().merge('b').into('c')
-.convert();
-```
-
-The output is:
-
-```javascript
-{}
-```
-
-### 9
-
-```javascript
-var model = {},
-	rest = {
-		a: 1,
-		b: 2,
-		c: {
-			d: 6
+		c: 3,
+		child: {
+			a: 4,
+			b: 5,
+			c: 6
 		}
-	};
-
-var result = new Chart(model).from(rest)
-	.merge('a')
-	.also(model.d).from(rest.c)
-		.merge('d')
-.convert();
+	})
+	.set('newProp', 1)
+	.then().merge('a', defaultValue)
+	.then().write('b', defaultValue)
+	.then().write('c').into('newC')
+	.also(result, 'child').from(source.child)
+		.merge('a') 
+		.then().merge('b').when(function(from, to) { return from == 7; })
+		.then().merge('c').via(function(from, to) { return from + 2; })
+	.convert();
 ```
 
-The output is:
+Now let's analyze what the methods of each instruction does.
 
-```javascript
-{}
-```
+| Method  | Description                                                                                           | Usage                                                                | Traditional Equivalent                                                                     |
+|---------|-------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| from    | Sets the source object to convert from                                                                | `var chart = new Chart(result).from({...})`                          | `var result = {};`                                                                           |
+| set     | Sets a property on the result from a specified value                                                  | `.set('newProp', 1)`                                                 | `result.newProp = 1;`                                                                      |
+| then    | Creates a new instruction                                                                             | `.then()`                                                            | `;`                                                                                        |
+| merge   | Copies the value of a property from the source to the result only if the result property is undefined | `.merge('a', defaultValue)`                                          | `if(result.a === undefined) result.a = source.a \|\| defaultValue;`                        |
+| write   | Copies the value of a property from the source to the result                                          | `.then().write('b', defaultValue)`                                   | `result.b = source.b \|\| defaultValue;`                                                   |
+| into    | Manually specify what property to modify on the result.                                               | `.then().write('c').into('newC')`                                    | `result.newC = source.c;`                                                                  |
+| also    | Changes which result property (presumably an object) to apply all subsequent instructions to.         | `.also(result, 'child').from(source.child)`                          | `result.child = source.child || {};`                                                       | 
+| when    | Performs a modification only if a condition is met                                                    | `.then().merge('a').when(function(from, to) { return from == 7; })`  | `if(result.child.a === undefined && source.child.a == 7) result.child.a = source.child.a;` |
+| via     | Performs a custom transformation when property is being modified                                      | `.then().merge('b').via(function(from, to) { return from + 2; })`    | `if(result.child.b === undefined) result.child.b = source.child.b + 2;`                    |
+| convert | Executions the mapping instructions                                                                   | `.convert()`                                                         |                                                                                            |
 
-### 10
+## Methods
 
-```javascript
-var model = {
-		d: {
-			d: 5
-		}
-	},
-	rest = {
-		a: 1,
-		b: 2,
-		c: {
-			d: 6
-		}
-	};
+### from(source)
+Sets the source object to convert from.
 
-var result = new Chart(model).from(rest)
-	.merge('a')
-	.also(model.d).from(rest.c)
-		.merge('d')
-.convert();
-```
+### set(propertyName, defaultValue)
+Sets a property on the result from a specified value.
 
-The output is:
+### then()
+Creates a new instruction.
 
-```javascript
-{}
-```
+### merge(propertyName, defaultValue)
+Copies the value of a property from the source to the result only if the result property is undefined.
+For arrays, it will merge the contents of two arrays into one array.  (Like ```[].concat```)
+For objects, it copies the value of each property from the source to the result only if the result property is undefined.
 
-### 11
+### write(propertyName, defaultValue)
+Copies the value of a property from the source to the result.
+For arrays, it will replace the target array with the source array.
+For objects, it will replace the target object with the source object.
 
-```javascript
-var model = {
-		a: 6,
-		d: {
-			d: 5
-		}
-	},
-	rest = {
-		a: 1,
-		b: 2,
-		c: {
-			d: 6
-		}
-	};
+### into(propertyName)
+Manually specify what property to modify on the result.
 
-var result = new Chart(model).from(rest)
-	.write('a')
-	.also(model.d).from(rest.c)
-		.write('d')
-.convert();
-```
+### also(result, property)
+Changes which result property (presumably an object) to apply all subsequent instructions to. 
 
-The output is:
+### when(callback(from, to) { return ... })
+Performs a modification only if a condition is met.
 
-```javascript
-{}
-```
+### via(callback(from, to) { return ... })
+Performs a custom transformation when property is being modified.
 
-### 12
+### convert()
+Executions the mapping instructions.
 
-```javascript
-var model = {},
-	rest = {
-		a: 1,
-		b: 2,
-		c: {
-			d: 6
-		}
-	};
+## Examples
 
-var result = new Chart(model).from(rest)
-	.merge('a')
-	.then().merge('c')
-.convert();
-```
-
-The output is:
-
-```javascript
-{}
-```
-
-### 13
-
-```javascript
-var model = {
-		c: {
-			d: 5
-		}
-	},
-	rest = {
-		a: 1,
-		b: 2,
-		c: {
-			d: 6,
-			e: 7
-		}
-	};
-
-var result = new Chart(model).from(rest)
-	.merge('a')
-	.then().merge('c')
-.convert();
-```
-
-The output is:
-
-```javascript
-{}
-```
-
-### 14
-
-```javascript
-var model = {
-		c: {
-			d: 5
-		}
-	},
-	rest = {
-		a: 1,
-		b: 2,
-		c: {
-			d: 6,
-			e: 7
-		}
-	};
-
-var result = new Chart(model).from(rest)
-	.merge('a')
-	.then().merge('c')
-.convert();
-```
-
-The output is:
-
-```javascript
-{}
-```
-
-### 15
-
-```javascript
-var model = {},
-	rest = {
-		a: 1,
-		b: 2,
-		c: {
-			d: 6,
-			e: 7,
-			f: {
-				g: 8
-			}
-		}
-	};
-
-var result = new Chart(model).from(rest)
-	.merge('a')
-	.also(model.custom).from(rest.c)
-		.merge('*')
-.convert();
-```
-
-The output is:
-
-```javascript
-{}
-```
-
-### 16
-
-```javascript
-var model = {
-		c: {
-			d: 5,
-			f: {
-				i: 9
-			}
-		}
-	},
-	rest = {
-		a: 1,
-		b: 2,
-		c: {
-			d: 6,
-			e: 7,
-			f: {
-				g: 8
-			}
-		}
-	};
-
-var result = new Chart(model).from(rest)
-	.merge('a')
-	.also(model.custom).from(rest.c)
-		.merge('*')
-.convert();
-```
+Check out the [tests](test/Test.js) to see examples and results.
