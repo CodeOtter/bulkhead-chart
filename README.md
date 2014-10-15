@@ -42,18 +42,18 @@ var result = new Chart(result).from({
 
 Now let's analyze what the methods of each instruction does.
 
-| Method  | Description                                                                                           | Usage                                                                | Traditional Equivalent                                                                     |
-|---------|-------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
-| from    | Sets the source object to convert from                                                                | `var chart = new Chart(result).from({...})`                          | `var result = {};`                                                                           |
-| set     | Sets a property on the result from a specified value                                                  | `.set('newProp', 1)`                                                 | `result.newProp = 1;`                                                                      |
-| then    | Creates a new instruction                                                                             | `.then()`                                                            | `;`                                                                                        |
-| merge   | Copies the value of a property from the source to the result only if the result property is undefined | `.merge('a', defaultValue)`                                          | `if(result.a === undefined) result.a = source.a \|\| defaultValue;`                        |
-| write   | Copies the value of a property from the source to the result                                          | `.then().write('b', defaultValue)`                                   | `result.b = source.b \|\| defaultValue;`                                                   |
-| into    | Manually specify what property to modify on the result.                                               | `.then().write('c').into('newC')`                                    | `result.newC = source.c;`                                                                  |
-| also    | Changes which result property (presumably an object) to apply all subsequent instructions to.         | `.also(result, 'child').from(source.child)`                          | `result.child = source.child || {};`                                                       | 
-| when    | Performs a modification only if a condition is met                                                    | `.then().merge('a').when(function(from, to) { return from == 7; })`  | `if(result.child.a === undefined && source.child.a == 7) result.child.a = source.child.a;` |
-| via     | Performs a custom transformation when property is being modified                                      | `.then().merge('b').via(function(from, to) { return from + 2; })`    | `if(result.child.b === undefined) result.child.b = source.child.b + 2;`                    |
-| convert | Executions the mapping instructions                                                                   | `.convert()`                                                         |                                                                                            |
+| Method  | Usage                                                                | Traditional Equivalent                                                                     |
+|---------|----------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| from    | `var chart = new Chart(result).from({...})`                          | `var result = {};`                                                                         |
+| set     | `.set('newProp', 1)`                                                 | `result.newProp = 1;`                                                                      |
+| then    | `.then()`                                                            | `;`                                                                                        |
+| merge   | `.merge('a', defaultValue)`                                          | `if(result.a === undefined) result.a = source.a || defaultValue;`                          |
+| write   | `.then().write('b', defaultValue)`                                   | `result.b = source.b || defaultValue;`                                                     |
+| into    | `.then().write('c').into('newC')`                                    | `result.newC = source.c;`                                                                  |
+| also    | `.also(result, 'child').from(source.child)`                          | `result.child = source.child || {};`                                                       | 
+| when    | `.then().merge('a').when(function(from, to) { return from == 7; })`  | `if(result.child.a === undefined && source.child.a == 7) result.child.a = source.child.a;` |
+| via     | `.then().merge('b').via(function(from, to) { return from + 2; })`    | `if(result.child.b === undefined) result.child.b = source.child.b + 2;`                    |
+| convert | `.convert()`                                                         |                                                                                            |
 
 ## Methods
 
