@@ -37,6 +37,7 @@ var result = new Chart(result).from({
 		.merge('a') 
 		.then().merge('b').when(function(from, to) { return from == 7; })
 		.then().merge('c').via(function(from, to) { return from + 2; })
+		.then().write('someObject').as(SomeClass)
 	.convert();
 ```
 
@@ -71,6 +72,7 @@ Creates a new instruction.
 Copies the value of a property from the source to the result only if the result property is undefined.
 For arrays, it will merge the contents of two arrays into one array.  (Like ```[].concat```)
 For objects, it copies the value of each property from the source to the result only if the result property is undefined.
+For collections, it will merge the contents of a model into any model with the corresponding ```id``` property.
 
 ### write(propertyName, defaultValue)
 Copies the value of a property from the source to the result.
