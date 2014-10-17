@@ -43,6 +43,8 @@ function Mapping(chart, target, source, fromProperty, toProperty, mode, defaultV
 	this.conditions = [];
 	this.when(conditions);
 	this.transformer = undefined;
+	this.convertTransformer = undefined;
+	this.revertTransformer = undefined;
 	this.factory = undefined;
 }
 
@@ -124,8 +126,10 @@ Mapping.prototype.into = function(toProperty, defaultValue) {
  * 
  * @param via
  */
-Mapping.prototype.via = function(transformer) {
-	this.transformer = transformer;
+Mapping.prototype.via = function(convertTransformer, revertTransformer) {
+	this.transformer = convertTransformer;
+	this.convertTransformer = convertTransformer;
+	this.revertTransformer = revertTransformer;
 	return this;
 };
 
@@ -245,6 +249,13 @@ Mapping.prototype.convert = function(errorHandler) {
 	}
 
 	return this.chart.map[0].target;
+};
+
+/**
+ * 
+ */
+Mapping.prototype.revert = function(errorHandler) {
+	throw new Error('Not implemented yet');
 };
 
 /**
